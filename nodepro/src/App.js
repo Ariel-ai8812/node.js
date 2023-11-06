@@ -12,7 +12,7 @@ function App() {
 
   async function getFolder() {
     try {
-      const res = await URL.get("http://localhost:4000");
+      const res = await URL.get();
       setData(res.data);
       console.log(res.data);
     } catch (error) {
@@ -20,12 +20,17 @@ function App() {
     }
   }
 
+  function change() {
+    console.log("c");
+    getFolder();
+  }
+
   return (
     <div>
       <h1 style={{ textAlign: "center" }}>wellcome to home page</h1>
       <button>+</button>
-      {console.log(data)}
-      {data[0] && <Folder folder={data} />}
+      {/* {console.log(data)} */}
+      {data[0] && <Folder folder={data} change={change} />}
     </div>
   );
 }

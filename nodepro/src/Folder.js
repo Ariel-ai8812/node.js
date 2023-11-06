@@ -5,6 +5,10 @@ import Info from "./Info.jsx";
 import Show from "./Show.js";
 
 export function Folder(props) {
+  // function change(){
+  //  / props.change()
+  // }
+
   return (
     <div className="folder-grid">
       {props.folder.map((element) => (
@@ -21,7 +25,7 @@ export function Folder(props) {
             />
           </div>
           <div style={{ margin: "0.5vw" }}>
-            <Button />
+            <Button name = {element.name} change={props.change} />
           </div>
         </div>
       ))}
