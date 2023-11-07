@@ -10,14 +10,14 @@ function Button(props) {
   function handleRename() {
     const newFileName = newName.current.value;
     console.log("New name:", newFileName);
-    setShowRenameInput(false);
     renameFile(name, newFileName);
+    setShowRenameInput(false);
   }
 
   const renameFile = async (oldName, newName) => {
     try {
-      const response = await URL.post(`/rename/${oldName}/${newName}`);
-      console.log(response.data.message);
+      await URL.put(`/rename`, { oldName, newName });
+      await props.change();
     } catch (error) {
       console.error("Error renaming file:", error);
     }
@@ -25,12 +25,19 @@ function Button(props) {
 
   const deleteFile = async (nameDel) => {
     try {
-      console.log(nameDel);
-      const response = await URL.delete(`/delete/${nameDel}`);
-      console.log(response);
-      props.change();
+      await props.change();
+      await URL.delete(`/delete/${nameDel}`);
     } catch (error) {
       console.log("Error delete file:", error);
+    }
+  };
+
+  const copyFile = async (name) => {
+    try {
+      await URL.post(`/copy/${name}`);
+      await props.change();
+    } catch (error) {
+      console.log("Error copy file:", error);
     }
   };
 
@@ -43,7 +50,7 @@ function Button(props) {
         🔻
       </button>
       {showOptions && (
-        <div className="options-bar">
+        <div className="options-bar" style={{ position: "absolute" }}>
           <button
             className="btn btn-secondary"
             onClick={() => {
@@ -65,7 +72,9 @@ function Button(props) {
           >
             Remove
           </button>
-          <button className="btn btn-secondary">Copy</button>
+          <button onClick={() => copyFile()} className="btn btn-secondary">
+            Copy
+          </button>
         </div>
       )}
     </div>

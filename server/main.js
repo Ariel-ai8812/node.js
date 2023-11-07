@@ -4,9 +4,11 @@ const app = express();
 const path = require("path");
 const fs = require("fs");
 app.listen(4000);
+app.use(express.json());
 app.use(cors("*"));
 getAll();
 const filePath = path.join("C:", "Users", "user", "nodePro");
+
 function getAll() {
   app.get("/*", (req, res) => {
     const requestedPath = decodeURI(req.url);
@@ -29,8 +31,8 @@ function getAll() {
               fileList.push({
                 name: item,
                 type: stats.isFile() ? "File" : "Directory",
-                size: stats.size, // Size in bytes
-                createdAt: stats.ctime, // Created timestamp
+                size: stats.size,
+                createdAt: stats.ctime,
               });
             } catch (error) {
               console.error("Error reading file stats:", error);
@@ -54,19 +56,19 @@ function getAll() {
 //   });
 // }
 
-// app.post("/rename/:oldName/:newName", async (req, res) => {
-//   const  oldName = req.params.oldName; // Assuming the request body contains oldName and newName
-//   const  newName = req.params.newNameName; // Assuming the request body contains oldName and newName
-
-//   try {
-//     await fs.rename(oldName, newName);
-
-//     res.json({ message: "File renamed successfully" });
-//   } catch (error) {
-//     console.error("Error renaming file:", error);
-//     // res.status(500).json({ error: "File rename failed" });
-//   }
-// });
+app.put("/rename", async (req, res) => {
+  const { oldName, newName } = req.body;
+  try {
+    await fs.renameSync(
+      path.join(filePath, oldName),
+      path.join(filePath, newName)
+    );
+    await getAll();
+    res.json({ message: "File renamed successfully" });
+  } catch (error) {
+    console.error("Error renaming file:", error);
+  }
+});
 
 app.delete("/delete/:name", async (req, res) => {
   const nemeDel = req.params.name;
@@ -76,5 +78,15 @@ app.delete("/delete/:name", async (req, res) => {
     getAll();
   } catch (error) {
     console.error("Error delete file:", error);
+  }
+});
+
+app.post("/copy/:name", async (req, res) => {
+  const nameCopy = req.params.name;
+  try {
+   await fs.appendFileSync(path.join(filePath, nameCopy));
+    console.log("file copy!!");
+  } catch (error) {
+    console.error("Error copy file:", error);
   }
 });

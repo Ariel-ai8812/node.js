@@ -5,9 +5,6 @@ import Info from "./Info.jsx";
 import Show from "./Show.js";
 
 export function Folder(props) {
-  // function change(){
-  //  / props.change()
-  // }
 
   return (
     <div className="folder-grid">
