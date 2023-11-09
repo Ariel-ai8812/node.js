@@ -79,5 +79,4 @@ function Button({ name, change }) {
     </div>
   );
 }
-
 export default Button;
