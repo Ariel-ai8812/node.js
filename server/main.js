@@ -1,92 +1,76 @@
-const cors = require("cors");
 const express = require("express");
 const app = express();
 const path = require("path");
 const fs = require("fs");
+const cors = require("cors");
+
 app.listen(4000);
 app.use(express.json());
-app.use(cors("*"));
-getAll();
+app.use(cors());
+
 const filePath = path.join("C:", "Users", "user", "nodePro");
 
-function getAll() {
-  app.get("/*", (req, res) => {
-    const requestedPath = decodeURI(req.url);
-    console.log(requestedPath);
+app.get("/:folderName?/:fileName?", async (req, res) => {
+  const folderName = req.params.folderName || "";
+  const fileName = req.params.fileName || "";
+  const fileFullPath = path.join(filePath, folderName);
 
-    fs.readdir(path.join(filePath, requestedPath), async (err, files) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
+  try {
+    if (fs.existsSync(fileFullPath)) {
+      if (fs.statSync(fileFullPath).isFile()) {
+        const fileContent = fs.readFileSync(fileFullPath);
+        return res.send(fileContent);
       } else {
-        if (files.length === 0) {
-          res.send("No files in the directory");
-        } else {
-          const fileList = [];
-
-          for (const item of files) {
-            const itemPath = path.join(filePath, requestedPath, item);
-            try {
-              const stats = await fs.promises.stat(itemPath);
-              fileList.push({
-                name: item,
-                type: stats.isFile() ? "File" : "Directory",
-                size: stats.size,
-                createdAt: stats.ctime,
-              });
-            } catch (error) {
-              console.error("Error reading file stats:", error);
-            }
-          }
-
-          res.json(fileList);
-        }
+        const files = fs.readdirSync(fileFullPath);
+        const fileList = files.map((item) => {
+          const itemPath = path.join(fileFullPath, item);
+          const stats = fs.statSync(itemPath);
+          return {
+            name: item,
+            type: stats.isFile() ? "File" : "Directory",
+            size: stats.size,
+            createdAt: stats.ctime,
+          };
+        });
+        return res.json(fileList);
       }
-    });
-  });
-}
+    }
+    res.status(404).send("File not found");
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
-// function showFile(file) {
-//   fs.readFile(path.join(filePath, file), (err, file) => {
-//     if (err) console.log(err);
-//     else {
-//       // res.json(file);
-//       console.log(file);
-//     }
-//   });
-// }
-
-app.put("/rename", async (req, res) => {
+app.put("/rename", (req, res) => {
   const { oldName, newName } = req.body;
   try {
-    await fs.renameSync(
-      path.join(filePath, oldName),
-      path.join(filePath, newName)
-    );
-    await getAll();
+    fs.renameSync(path.join(filePath, oldName), path.join(filePath, newName));
     res.json({ message: "File renamed successfully" });
   } catch (error) {
     console.error("Error renaming file:", error);
+    res.status(500).json({ error: "File rename failed" });
   }
 });
 
-app.delete("/delete/:name", async (req, res) => {
-  const nemeDel = req.params.name;
+app.delete("/delete/:name", (req, res) => {
+  const nameDel = req.params.name;
   try {
-    fs.unlinkSync(path.join(filePath, nemeDel));
-    console.log("File deleted!");
-    getAll();
+    fs.unlinkSync(path.join(filePath, nameDel));
+    res.json({ message: "File deleted successfully" });
   } catch (error) {
-    console.error("Error delete file:", error);
+    console.error("Error deleting file:", error);
+    res.status(500).json({ error: "File delete failed" });
   }
 });
 
-app.post("/copy/:name", async (req, res) => {
+app.post("/copy/:name", (req, res) => {
   const nameCopy = req.params.name;
   try {
-   await fs.appendFileSync(path.join(filePath, nameCopy));
-    console.log("file copy!!");
+    fs.copyFileSync(path.join(filePath, nameCopy), path.join(filePath, nameCopy + "_copy"));
+    res.json({ message: "File copied successfully" });
   } catch (error) {
-    console.error("Error copy file:", error);
+    console.error("Error copying file:", error);
+    res.status(500).json({ error: "File copy failed" });
   }
 });

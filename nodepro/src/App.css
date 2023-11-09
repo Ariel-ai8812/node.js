@@ -7,9 +7,9 @@
   .folder-item {
     height: 13vw;
     width: 15vw; /* Adjust the width of each item as needed */
-    background-color: #f8f9fa; /* Background color for each item */
+    background-color: #c1d5e8; /* Background color for each item */
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 15px;
     margin: 10px; /* Adjust the margin between items as needed */
     padding: 10px;
     text-align: center;

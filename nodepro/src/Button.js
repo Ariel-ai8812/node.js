@@ -1,11 +1,10 @@
 import React, { useState, useRef } from "react";
 import URL from "./axios";
 
-function Button(props) {
+function Button({ name, change }) {
   const [showRenameInput, setShowRenameInput] = useState(false);
   const newName = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
-  const { name } = props;
 
   function handleRename() {
     const newFileName = newName.current.value;
@@ -17,7 +16,7 @@ function Button(props) {
   const renameFile = async (oldName, newName) => {
     try {
       await URL.put(`/rename`, { oldName, newName });
-      await props.change();
+      await change();
     } catch (error) {
       console.error("Error renaming file:", error);
     }
@@ -25,7 +24,7 @@ function Button(props) {
 
   const deleteFile = async (nameDel) => {
     try {
-      await props.change();
+      await change();
       await URL.delete(`/delete/${nameDel}`);
     } catch (error) {
       console.log("Error delete file:", error);
@@ -35,7 +34,7 @@ function Button(props) {
   const copyFile = async (name) => {
     try {
       await URL.post(`/copy/${name}`);
-      await props.change();
+      await change();
     } catch (error) {
       console.log("Error copy file:", error);
     }
